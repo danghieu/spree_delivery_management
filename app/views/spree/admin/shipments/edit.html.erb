@@ -1,0 +1,89 @@
+<% content_for :page_actions do %>
+  <%= button_link_to Spree.t(:back_to_shipments_list), spree.admin_shipments_path, icon: 'arrow-left' %>
+<% end %>
+
+<div>
+	<div class="col-md-4">
+		<div data-hook="edit_image" class="panel panel-default">
+    <div class="panel-heading">
+      <h1 class="panel-title">
+      	<%= Spree.t(:delivery_man) %>
+      </h1>
+      <div class="pull-right" style="margin-top: -28px;">
+      	<a class="change  btn btn-primary">Change</a>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <div data-hook="thumbnail" class="col-md-5 text-center">
+        <%if @shipment.deliverer.images.any? %>
+          <%= image_tag @shipment.deliverer.images.first.attachment.url(:normal) %>
+        <% end %>
+        </div>
+        <div class="col-md-7">
+        	<b><%= Spree.t(:Name) %>: </b><%= @shipment.deliverer.first_name %> <%= @shipment.deliverer.last_name %>
+        	<br>
+        	<b><%= Spree.t(:email) %>: </b><%= @shipment.deliverer.email %>
+        </div>
+        </div>
+        <div class="form-buttons filter-actions actions" data-hook="buttons">
+        </div>
+      </div>
+    </div>
+    <div class="change_delivery" style="display:none">
+  	<%=  collection_select(:user, :user_id, Spree::User.deliverers, :id, :email, {:selected => @shipment.deliverer.id},{:class => ' select2'}) %>
+  </div>
+  </div>
+  
+	</div>
+	<div data-hook="admin_shipment_form_fields" class="col-md-8">
+	  <%= render partial: "shipment", locals: { order: @shipment.order, shipment: @shipment } %>
+	</div>
+</div>
+
+<div id="map-canvas" style="width:800px;height:600px;margin: 0 auto;top:35px"/>
+<div id="directions-panel"></div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    var company_address = "<%= COMPANY_ADDRESS %>";
+    var addresses = [];
+      addresses.push({
+         location: "<%= @addresses %>",
+         stopover: true
+       });
+    console.log(addresses[addresses.length -1]);
+    initMap(company_address,addresses)
+  });
+</script>
+
+
+<script type="text/javascript">
+   
+  $(".change").click(function() {
+   	$(".change_delivery").show();
+  });
+
+  $('.change_delivery .select2').on('change', function() {
+   	var shipment_id =<%= @shipment.id %>
+   	var user_id = $(this).val();
+   	$.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/admin/shipments/change_delivery_man',
+        data: {
+        	"shipment_id":shipment_id,
+          "user_id": user_id
+        },
+        success: function(data) {
+          window.location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert("An error occurred while trying to update the deliverer. Please try again.");
+        }
+      });
+ 	});
+</script>
+
+

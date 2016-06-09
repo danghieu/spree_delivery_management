@@ -1,0 +1,68 @@
+<% content_for :page_actions do %>
+  <%= button_link_to Spree.t(:back_to_shipments_list), spree.admin_shipments_path, icon: 'arrow-left' %>
+<% end %>
+
+<div>
+	<div class="col-md-4">
+		<div data-hook="edit_image" class="panel panel-default">
+    <div class="panel-heading">
+      <h1 class="panel-title">
+      	<%= Spree.t(:delivery_man) %>
+      </h1>
+      <div class="pull-right" style="margin-top: -28px;">
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <div data-hook="thumbnail" class="col-md-5 text-center">
+        <%if @deliverer.images.any? %>
+          <%= image_tag @deliverer.images.first.attachment.url(:normal) %>
+        <% end %>
+        </div>
+        <div class="col-md-7">
+        	<b><%= Spree.t(:Name) %>: </b><%= @deliverer.first_name %> <%= @deliverer.last_name %>
+        	<br>
+        	<b><%= Spree.t(:email) %>: </b><%= @deliverer.email %>
+        </div>
+        </div>
+        <div class="form-buttons filter-actions actions" data-hook="buttons">
+        </div>
+      </div>
+    </div>
+    </div>
+  
+	</div>
+
+  <div class="col-md-8">
+  <% if @shipments.any? %>
+    <% @shipments.each do |shipment| %>
+    <div data-hook="admin_shipment_form_fields" >
+    <%= render partial: "shipment", locals: { order: shipment.order, shipment: shipment } %>
+    </div>
+    <% end %>
+  <% else %> 
+     <div class="alert alert-info no-objects-found">
+      <%= Spree.t(:no_resource_found, resource: Spree::Shipment.model_name.human(count: :many)) %>
+    </div>
+  <% end %>
+  </div>
+<% if @shipments.any? %>
+  <div id="map-canvas" style="width:800px;height:600px;margin: 0 auto;top:35px"/>
+  <div id="directions-panel"></div>
+  </div>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var company_address = "<%= COMPANY_ADDRESS %>";
+      var addresses = [];
+      <% @addresses.each do |address| %>
+        addresses.push({
+           location: "<%= address %>",
+           stopover: true
+         });
+      <% end %>
+      console.log(addresses[addresses.length -1]);
+      initMap(company_address,addresses)
+    });
+  </script>
+<% end %>

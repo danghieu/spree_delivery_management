@@ -1,0 +1,30 @@
+<% shipment.manifest.each do |item| %>
+  <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
+    <td class="item-image image text-center">
+      <%= mini_image(item.variant) %>
+    </td>
+
+    <td class="item-name">
+      <%= truncate(item.variant.product.name , escape: false,length: 20) %>
+    </td>
+
+    <td class="item-price text-center"><%= item.line_item.single_money.to_html %></td>
+
+    <td class="item-qty-show text-center">
+      <% item.states.each do |state,count| %>
+        <%= count %> x <%= Spree.t(state).downcase %>
+      <% end %>
+    </td>
+
+    <% unless shipment.shipped? %>
+      <td class="item-qty-edit is-hidden">
+        <%= number_field_tag :quantity, item.quantity, min: 0, class: "line_item_quantity form-control", size: 5 %>
+      </td>
+    <% end %>
+
+    <td class="item-total text-center">
+      <%= line_item_shipment_price(item.line_item, item.quantity) %>
+    </td>
+
+  </tr>
+<% end %>
