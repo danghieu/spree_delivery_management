@@ -9,7 +9,7 @@ module Spree
         @search = Spree::Shipment.accessible_by(current_ability, :index).ransack(params[:q])
         @shipments = @search.result.
           page(params[:page]).
-          per(params[:per_page] || Spree::Config[:orders_per_page]).date(Date.today).time_frame(@time.id)
+          per(params[:per_page] || Spree::Config[:orders_per_page]).date(Date.today).time_frame(@time.id).where("user_id IS NOT NULL")
       end
 
       def load_data
