@@ -10,6 +10,7 @@
       	<%= Spree.t(:delivery_man) %>
       </h1>
       <div class="pull-right" style="margin-top: -28px;">
+        <a class="capture btn btn-primary">Capture</a>
       </div>
     </div>
     <div class="panel-body">
@@ -19,16 +20,26 @@
           <%= image_tag @deliverer.images.first.attachment.url(:normal) %>
         <% end %>
         </div>
+
         <div class="col-md-7">
         	<b><%= Spree.t(:Name) %>: </b><%= @deliverer.first_name %> <%= @deliverer.last_name %>
         	<br>
         	<b><%= Spree.t(:email) %>: </b><%= @deliverer.email %>
+          <br>
+          <b><%= Spree.t(:income) %>: </b><%= number_to_currency(@deliverer.balance, :unit => '', precision: 0, seperator: ".", format: "%n %u") rescue '' %>  
         </div>
-        </div>
-        <div class="form-buttons filter-actions actions" data-hook="buttons">
+        
         </div>
       </div>
     </div>
+    <div class="capture_delivery" style="display:none">
+      <form role="form">
+        <div class="form-group">
+          <label for="email">amount:</label>
+          <input type="number" class="form-control" value="<%= @deliverer.balance %>" >
+        </div>
+        <button type="submit" class="btn btn-capture btn-default">Capture</button>
+       </form>
     </div>
   
 	</div>
@@ -42,7 +53,7 @@
     <% end %>
   <% else %> 
      <div class="alert alert-info no-objects-found">
-      <%= Spree.t(:no_resource_found, resource: Spree::Shipment.model_name.human(count: :many)) %>
+      <%= Spree.t(:no_shipments_today) %>
     </div>
   <% end %>
   </div>
@@ -61,8 +72,38 @@
            stopover: true
          });
       <% end %>
-      console.log(addresses[addresses.length -1]);
-      initMap(company_address,addresses)
+      initMap(company_address,addresses);
     });
+
+   
+
   </script>
 <% end %>
+  <script type="text/javascript">
+
+  $(".capture").click(function() {
+    $(".capture_delivery").show();
+  });
+  
+  $(".btn-capture").click(function(event) {
+    event.preventDefault();
+    var amount = $('input[type="number"]').val();
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/admin/shipments/capture',
+        data: {
+          "user_id": <%=@deliverer.id%>,
+          "amount": amount
+        },
+        success: function(data) {
+          window.location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          alert("An error occurred while trying to update the deliverer. Please try again.");
+        }
+      });
+
+  });
+
+</script>

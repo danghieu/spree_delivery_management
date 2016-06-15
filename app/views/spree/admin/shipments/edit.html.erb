@@ -32,7 +32,7 @@
     </div>
     <div class="change_delivery" style="display:none">
   	<%=  collection_select(:user, :user_id, Spree::User.deliverers, :id, :email, {:selected => @shipment.deliverer.id},{:class => ' select2'}) %>
-  </div>
+    </div>
   </div>
   
 	</div>

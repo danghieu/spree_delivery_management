@@ -1,0 +1,12 @@
+ <td><%= link_to shipment.number, spree.edit_admin_shipment_path(shipment) %></td>
+<td><span class="state <%= shipment.state.downcase %>"><%= Spree.t("shipment_state.#{shipment.state.downcase}") %></span></td>
+<td> <%= shipment.display_item_cost.to_html %></td>
+<td> 
+  <%= Spree.t(:Name) %>: <%= shipment.order.ship_address.last_name %> <%= shipment.order.ship_address.last_name %>
+  <br>
+  <%= Spree.t(:Address) %>: <%= shipment.order.ship_address.address1 %>, <%= shipment.order.ship_address.city %>
+</td>
+
+<td data-hook="admin_shipments_index_row_actions">
+  <%= link_to_edit_url spree.edit_admin_shipment_path(shipment), :title => "admin_edit_#{dom_id(shipment)}", :no_text => true %>
+</td>

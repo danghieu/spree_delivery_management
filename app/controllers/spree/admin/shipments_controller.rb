@@ -6,14 +6,11 @@ module Spree
         if params[:shipments].present? && params[:shipments][:time].present?
           @time=Dish::TimeFrame.find(params[:shipments][:time])
         end
-        @search = Spree::Shipment.accessible_by(current_ability, :index).ransack(params[:q])
-        @shipments = @search.result.
-          page(params[:page]).
-          per(params[:per_page] || Spree::Config[:orders_per_page]).date(Date.today).time_frame(@time.id).where("user_id IS NOT NULL")
       end
 
       def load_data
         @time = Dish::TimeFrame.first
+        @deliverers = Spree::User.deliverers
       end
 
       def change_delivery_man
@@ -27,6 +24,24 @@ module Spree
             else
               render json: { error: "Could not save" }, status: 400
             end
+          end
+        end
+      end
+
+      def capture
+        if params[:user_id] && params[:amount]
+          user = Spree::User.find(params[:user_id])
+          amount = BigDecimal.new params[:amount]
+          if(user.balance> amount)
+            user.balance = user.balance - amount
+            if user.save
+              render json: { success: "ok" }, status: 200
+            else
+              render json: { error: "Could not save" }, status: 400
+
+            end
+          else
+            render json: { error: "Could not save" }, status: 400
           end
         end
       end
